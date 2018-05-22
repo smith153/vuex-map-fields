@@ -1,5 +1,17 @@
 import arrayToObject from './lib/array-to-object';
 
+function normalizeNamespace(fn) {
+  return (namespace, map, getterType, mutationType) => {
+    if (typeof namespace !== `string`) {
+      map = namespace;
+      namespace = ``;
+    } else if (namespace.charAt(namespace.length - 1) !== `/`) {
+      namespace += `/`;
+    }
+    return fn(namespace, map, `${namespace}${getterType}`, `${namespace}${mutationType}`);
+  };
+}
+
 export function getField(state) {
   return path => path.split(/[.[\]]+/).reduce((prev, key) => prev[key], state);
 }
@@ -15,7 +27,7 @@ export function updateField(state, { path, value }) {
   }, state);
 }
 
-export function mapFields(fields, getterType = `getField`, mutationType = `updateField`) {
+export const mapFields = normalizeNamespace((namespace, fields, getterType = `getField`, mutationType = `updateField`) => {
   const fieldsObject = Array.isArray(fields) ? arrayToObject(fields) : fields;
 
   return Object.keys(fieldsObject).reduce((prev, key) => {
@@ -34,7 +46,7 @@ export function mapFields(fields, getterType = `getField`, mutationType = `updat
 
     return prev;
   }, {});
-}
+});
 
 export function mapMultiRowFields(paths, getterType = `getField`, mutationType = `updateField`) {
   const pathsObject = Array.isArray(paths) ? arrayToObject(paths) : paths;

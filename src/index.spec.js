@@ -85,6 +85,16 @@ describe(`index`, () => {
       expect(mockGetter).toBeCalledWith(`foo`);
     });
 
+    test.only(`It should call the namespaced \`getterType\` function when calling a field getter.`, () => {
+      const mockGetter = jest.fn();
+      const objectOfFields = { bar: `bar` };
+      const mappedFields = mapFields(`foo`, objectOfFields);
+
+      mappedFields.foo.bar.get.apply({ $store: { getters: { getField: mockGetter } } });
+
+      expect(mockGetter).toBeCalledWith(`bar`);
+    });
+
     test(`It should commit the \`updateField\` mutation when calling a field setter.`, () => {
       const commitMock = jest.fn();
       const objectOfFields = {
@@ -96,6 +106,19 @@ describe(`index`, () => {
       mappedFields.bar.set.apply({ $store: { commit: commitMock } }, [`newFieldValue`]);
 
       expect(commitMock).toBeCalledWith(`updateField`, { path: `bar.baz`, value: `newFieldValue` });
+    });
+
+    test.only(`It should commit the namespaced \`updateField\` mutation when calling a field setter.`, () => {
+      const commitMock = jest.fn();
+      const objectOfFields = {
+        bar: `bar`,
+        baz: `baz.qux`,
+      };
+      const mappedFields = mapFields(`foo`, objectOfFields);
+
+      mappedFields.foo.bar.set.apply({ $store: { commit: commitMock } }, [`newFieldValue`]);
+
+      expect(commitMock).toBeCalledWith(`updateField`, { path: `foo.bar.baz`, value: `newFieldValue` });
     });
   });
 
