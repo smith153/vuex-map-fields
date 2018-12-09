@@ -24,8 +24,12 @@ export function getField(state) {
 export function updateField(state, { path, value }) {
   path.split(/[.[\]]+/).reduce((prev, key, index, array) => {
     if (array.length === index + 1) {
-      // eslint-disable-next-line no-param-reassign
-      prev[key] = value;
+      if (!prev.hasOwnProperty(key)) {
+        Vue.set(prev, key, value)
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        prev[key] = value
+      }
     }
 
     return prev[key];
